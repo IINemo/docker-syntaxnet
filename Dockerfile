@@ -1,3 +1,4 @@
+
 FROM ubuntu:15.10
 
 MAINTAINER Brian Low <brian.low22@gmail.com>
@@ -38,7 +39,7 @@ RUN echo "build --spawn_strategy=standalone --genrule_strategy=standalone" \
     >>/root/.bazelrc
 ENV BAZELRC /root/.bazelrc
 # Install the most recent bazel release.
-ENV BAZEL_VERSION 0.2.2
+ENV BAZEL_VERSION 0.3.1
 WORKDIR /
 RUN mkdir /bazel && \
     cd /bazel && \
@@ -53,7 +54,7 @@ RUN mkdir /bazel && \
 # Syntaxnet dependencies
 
 RUN pip install -U protobuf==3.0.0b2
-RUN pip install asciitree
+RUN pip install asciitree mock
 
 # Download and build Syntaxnet
 
@@ -63,5 +64,19 @@ RUN cd /root/models/syntaxnet && bazel test syntaxnet/... util/utf8/...
 
 WORKDIR /root/models/syntaxnet/
 
-CMD /root/models/syntaxnet/syntaxnet/demo.sh
+RUN \
+echo u_RU.UTF-8 UTF-8 > /etc/locale.gen && \
+locale-gen "ru_RU.UTF-8" && \
+echo 'LANG="ru_RU.UTF-8"'>/etc/default/locale && \
+dpkg-reconfigure --frontend=noninteractive locales && \
+update-locale LC_ALL=ru_RU.UTF-8 LANG=ru_RU.UTF-8  
+
+ENV LANG ru_RU.UTF-8
+
+ADD http://download.tensorflow.org/models/parsey_universal/Russian-SynTagRus.zip /root/models/syntaxnet/syntaxnet/models
+RUN unzip /root/models/syntaxnet/syntaxnet/models/Russian-SynTagRus.zip -d /root/models/syntaxnet/syntaxnet/models/
+
+COPY demo_rus.sh /root/models/syntaxnet/syntaxnet/
+
+CMD /root/models/syntaxnet/syntaxnet/demo_rus.sh
 
