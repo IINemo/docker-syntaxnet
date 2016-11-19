@@ -1,24 +1,21 @@
-[![Docker Pulls](https://img.shields.io/docker/pulls/brianlow/syntaxnet.svg?style=flat-square)](https://hub.docker.com/r/brianlow/syntaxnet/)
-[![Docker Stars](https://img.shields.io/docker/stars/brianlow/syntaxnet.svg?style=flat-square)](https://hub.docker.com/r/brianlow/syntaxnet/)
-
-
-Syntaxnet
+Syntaxnet for Russian
 =========
 
-[Google's SyntaxNet](https://github.com/tensorflow/models/tree/master/syntaxnet) Parser and POS tagger.
+[Google's SyntaxNet](https://github.com/tensorflow/models/tree/master/syntaxnet) Parser and POS tagger with Russian model.
 
 
 Usage
 -----
 
 ```shell
-echo "Name this boat" | docker run --rm -i brianlow/syntaxnet
+echo "мама мыла раму" | docker run --rm -i inemo/syntaxnet_rus
 ...
 Input: Name this boat
-Parse:
-Name VB ROOT
- +-- boat NN dobj
-     +-- this DT det
+Parse (CONLL format):
+1       мама    _       NOUN    _       Animacy=Anim|Case=Nom|Gender=Fem|Number=Sing|fPOS=NOUN++        2       nsubj   _       _
+2       мыла    _       VERB    _       Aspect=Imp|Gender=Fem|Mood=Ind|Number=Sing|Tense=Past|VerbForm=Fin|Voice=Act|fPOS=VERB++        0  ROOT     _       _
+3       раму    _       NOUN    _       Animacy=Inan|Case=Acc|Gender=Fem|Number=Sing|fPOS=NOUN++        2       dobj    _       _
+
 ```
 
 
@@ -27,7 +24,7 @@ Updating
 
 ```
 docker login
-docker build -t brianlow/syntaxnet --no-cache . && docker push brianlow/syntaxnet
+docker build -t inenmo/syntaxnet_rus --no-cache . && docker push inemo/syntaxnet_rus
 
 ```
 
