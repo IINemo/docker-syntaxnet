@@ -1,7 +1,5 @@
-
 FROM ubuntu:15.10
 
-MAINTAINER Brian Low <brian.low22@gmail.com>
 
 RUN apt-get update && apt-get install -y \
         build-essential \
@@ -56,13 +54,15 @@ RUN mkdir /bazel && \
 RUN pip install -U protobuf==3.0.0b2
 RUN pip install asciitree mock
 
+
 # Download and build Syntaxnet
 
 RUN git clone --recursive https://github.com/tensorflow/models.git /root/models
 RUN cd /root/models/syntaxnet/tensorflow && echo | ./configure
 RUN cd /root/models/syntaxnet && bazel test syntaxnet/... util/utf8/...
 
-WORKDIR /root/models/syntaxnet/
+
+# Setting up locales
 
 RUN \
 echo u_RU.UTF-8 UTF-8 > /etc/locale.gen && \
@@ -73,10 +73,18 @@ update-locale LC_ALL=ru_RU.UTF-8 LANG=ru_RU.UTF-8
 
 ENV LANG ru_RU.UTF-8
 
+
+# Downloading and unpacking model for Russian
+
 ADD http://download.tensorflow.org/models/parsey_universal/Russian-SynTagRus.zip /root/models/syntaxnet/syntaxnet/models
 RUN unzip /root/models/syntaxnet/syntaxnet/models/Russian-SynTagRus.zip -d /root/models/syntaxnet/syntaxnet/models/
 
+
+# Misk
+
 COPY demo_rus.sh /root/models/syntaxnet/syntaxnet/
+
+WORKDIR /root/models/syntaxnet/
 
 CMD /root/models/syntaxnet/syntaxnet/demo_rus.sh
 
