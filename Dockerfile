@@ -84,6 +84,12 @@ RUN unzip /root/models/syntaxnet/syntaxnet/models/Russian-SynTagRus.zip -d /root
 
 COPY demo_rus.sh /root/models/syntaxnet/syntaxnet/
 
+# Standalone server
+
+COPY api /root/models/syntaxnet/bazel-bin/syntaxnet/parser_eval.runfiles/__main__/syntaxnet/api/
+
+####################
+
 WORKDIR /root/models/syntaxnet/
 
 CMD /root/models/syntaxnet/syntaxnet/demo_rus.sh
