@@ -4,9 +4,10 @@ Syntaxnet for Russian
 [Google's SyntaxNet](https://github.com/tensorflow/models/tree/master/syntaxnet) Parser and POS tagger with Russian model.
 
 
-Usage
+# Usage
 -----
 
+## 1. Single parse using shell:
 ```shell
 echo "мама мыла раму" | docker run --rm -i inemo/syntaxnet_rus
 ...
@@ -17,9 +18,26 @@ Parse (CONLL format):
 3       раму    _       NOUN    _       Animacy=Inan|Case=Acc|Gender=Fem|Number=Sing|fPOS=NOUN++        2       dobj    _       _
 
 ```
+## 2. Standalone syntaxnet server that does not recreate models (stays alive) (unstable):
 
+```shell
+docker run -i --rm -p 8111:9999 inemo/syntaxnet_rus python /root/models/syntaxnet/bazel-bin/syntaxnet/parser_eval.runfiles/__main__/syntaxnet/api/syntaxnext_rus_api.py --host=0.0.0.0 --port=9999
+```
+You can use telnet to talk with parser:
+```shell
+telent localhost 8111
+```
+```shell
+мама мыла
+```
+```shell
+1       мама    _       NOUN    _       Animacy=Anim|Case=Nom|Gender=Fem|Number=Sing|fPOS=NOUN++        2       nsubj   _       _
+2       мыла    _       VERB    _       Aspect=Imp|Gender=Fem|Mood=Ind|Number=Sing|Tense=Past|VerbForm=Fin|Voice=Act|fPOS=VERB++        0  ROOT     _       _
 
-Updating
+```
+You also can use the server in conjunction with syntaxnet python wrapper.
+
+# Updating
 --------
 
 ```
