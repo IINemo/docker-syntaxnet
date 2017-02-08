@@ -29,7 +29,7 @@ Note that, although the current container installs model for Russian, the implem
 
 2.2 You can use telnet to talk with parser (be aware about escape problems of unicode in telnet, e.g., 'маму' will not work by default via telnet):
 ```shell
-telent localhost 8111
+telnet localhost 8111
 ```
 ```shell
 мама мыла
