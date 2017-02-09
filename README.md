@@ -46,7 +46,7 @@ telnet localhost 8111
 
 ```
 docker login
-docker build -t inenmo/syntaxnet_rus --no-cache . && docker push inemo/syntaxnet_rus
+docker build -t inemo/syntaxnet_rus --no-cache . && docker push inemo/syntaxnet_rus
 
 ```
 
