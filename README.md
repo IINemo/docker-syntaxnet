@@ -21,7 +21,7 @@ Parse (CONLL format):
 ### 2. Standalone SyntaxNet server that does not recreate models (stays alive) (unstable):
 
 ```shell
-docker run -i --rm -p 8111:9999 inemo/syntaxnet_rus python /root/models/syntaxnet/bazel-bin/syntaxnet/parser_eval.runfiles/__main__/syntaxnet/api/syntaxnet_rus_api.py --host=0.0.0.0 --port=9999
+docker run --shm-size=1024m -i --rm -p 8111:9999 inemo/syntaxnet_rus python /root/models/syntaxnet/bazel-bin/syntaxnet/parser_eval.runfiles/__main__/syntaxnet/api/syntaxnet_rus_api.py --host=0.0.0.0 --port=9999
 ```
 Note that, although the current container installs model for Russian, the implemented server can be used for any language (any model trained in SyntaxNet).
 
