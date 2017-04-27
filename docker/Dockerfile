@@ -32,11 +32,13 @@ RUN update-ca-certificates -f
 #   https://github.com/bazelbuild/bazel/issues/134
 # The easiest solution is to set up a bazelrc file forcing --batch.
 RUN echo "startup --batch" >>/root/.bazelrc
+
 # Similarly, we need to workaround sandboxing issues:
 #   https://github.com/bazelbuild/bazel/issues/418
 RUN echo "build --spawn_strategy=standalone --genrule_strategy=standalone" \
     >>/root/.bazelrc
 ENV BAZELRC /root/.bazelrc
+
 # Install the most recent bazel release.
 ENV BAZEL_VERSION 0.4.5
 WORKDIR /
@@ -58,19 +60,13 @@ RUN pip install asciitree mock
 # Download and build Syntaxnet
 
 RUN git clone --recursive https://github.com/tensorflow/models.git /root/models
-#RUN cd /root/models/syntaxnet/tensorflow && echo | ./configure
 RUN cd /root/models/syntaxnet/tensorflow && tensorflow/tools/ci_build/builds/configured CPU
-#RUN cd /root/models/syntaxnet && bazel test syntaxnet/... util/utf8/...
 RUN cd /root/models/syntaxnet && bazel build -c opt @org_tensorflow//tensorflow:tensorflow_py
-#RUN cd /root/models/syntaxnet && bazel test ...
-
-#RUN cd /root/models/syntaxnet && bazel build -c opt //dragnn/python:all //dragnn/tools:all
-#RUN cd /root/models/syntaxnet && bazel build -c opt //syntaxnet:public
-#RUN cd /root/models/syntaxnet && bazel test syntaxnet/... util/...
 RUN cd /root/models/syntaxnet && bazel build syntaxnet/...
 
+######################################
 
-# Setting up locales
+# Setting up locales for Russian
 
 RUN \
 echo u_RU.UTF-8 UTF-8 > /etc/locale.gen && \
@@ -96,7 +92,7 @@ COPY demo_rus.sh /root/models/syntaxnet/syntaxnet/
 
 COPY api /root/models/syntaxnet/bazel-bin/syntaxnet/parser_eval.runfiles/__main__/syntaxnet/api/
 
-####################
+######################################
 
 WORKDIR /root/models/syntaxnet/
 
