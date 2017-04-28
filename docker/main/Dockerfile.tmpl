@@ -1,5 +1,4 @@
-FROM ubuntu:15.10
-
+FROM inemo/syntaxnet_base
 
 # Common locale: en_EN.UTF-8
 ENV LANG_LOCALE="<%PLACEHOLDER_LANG_LOCALE%>"
@@ -7,68 +6,8 @@ ENV LANG_LOCALE="<%PLACEHOLDER_LANG_LOCALE%>"
 # Common url: http://download.tensorflow.org/models/parsey_universal/English.zip
 ENV MODEL_URL="<%PLACEHOLDER_MODEL_URL%>"
 
-RUN apt-get update && apt-get install -y \
-        build-essential \
-        curl \
-        g++ \
-        git \
-        libfreetype6-dev \
-        libpng12-dev \
-        libzmq3-dev \
-        libcurl3-dev \
-        openjdk-8-jdk \
-        pkg-config \
-        python-dev \
-        python-numpy \
-        python-pip \
-        software-properties-common \
-        swig \
-        unzip \
-        zip \
-        zlib1g-dev \
-        && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN update-ca-certificates -f
-
-# Set up Bazel.
-
-# Running bazel inside a `docker build` command causes trouble, cf:
-#   https://github.com/bazelbuild/bazel/issues/134
-# The easiest solution is to set up a bazelrc file forcing --batch.
-RUN echo "startup --batch" >>/root/.bazelrc
-
-# Similarly, we need to workaround sandboxing issues:
-#   https://github.com/bazelbuild/bazel/issues/418
-RUN echo "build --spawn_strategy=standalone --genrule_strategy=standalone" \
-    >>/root/.bazelrc
-ENV BAZELRC /root/.bazelrc
-
-# Install the most recent bazel release.
-ENV BAZEL_VERSION 0.4.5
-WORKDIR /
-RUN mkdir /bazel && \
-    cd /bazel && \
-    curl -fSsL -O https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh && \
-    chmod +x bazel-*.sh && \
-    ./bazel-$BAZEL_VERSION-installer-linux-x86_64.sh && \
-    cd / && \
-    rm -f /bazel/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh
-
-
-# Syntaxnet dependencies
-
-RUN pip install -U protobuf==3.0.0b2
-RUN pip install asciitree mock
-
-
-# Download and build Syntaxnet
-
-RUN git clone --recursive https://github.com/tensorflow/models.git /root/models
-RUN cd /root/models/syntaxnet/tensorflow && tensorflow/tools/ci_build/builds/configured CPU
-RUN cd /root/models/syntaxnet && bazel build -c opt @org_tensorflow//tensorflow:tensorflow_py
-RUN cd /root/models/syntaxnet && bazel build syntaxnet/...
+# E.g.: English.zip
+ENV MODEL_NAME="<%PLACEHOLDER_MODEL_NAME%>"
 
 ######################################
 
@@ -83,18 +22,15 @@ update-locale LC_ALL="$LANG_LOCALE" LANG="$LANG_LOCALE"
 
 ENV LANG "$LANG_LOCALE"
 
-
 # Downloading and unpacking model for Russian
 
-RUN export MODEL_NAME=$(basename $MODEL_URL)
-
-ADD "$MODEL_URL" /root/models/syntaxnet/syntaxnet/models
-RUN unzip "/root/models/syntaxnet/syntaxnet/models/$MODEL_NAME" -d /root/models/syntaxnet/syntaxnet/models/
-
-
-# Misk
-
-COPY demo_rus.sh /root/models/syntaxnet/syntaxnet/
+ADD "$MODEL_URL" /root/models/syntaxnet/syntaxnet/models/Model.zip
+RUN unzip "/root/models/syntaxnet/syntaxnet/models/Model.zip" -d /root/models/syntaxnet/syntaxnet/models/Model/ && \
+mv /root/models/syntaxnet/syntaxnet/models/Model/$(ls /root/models/syntaxnet/syntaxnet/models/Model/ | head -1) \
+/root/models/syntaxnet/syntaxnet/models/Model1 && \
+rm -r /root/models/syntaxnet/syntaxnet/models/Model/
+ 
+#RUN unzip "/root/models/syntaxnet/syntaxnet/models/$MODEL_NAME" -d /root/models/syntaxnet/syntaxnet/models/
 
 # Standalone server
 
@@ -104,5 +40,5 @@ COPY api /root/models/syntaxnet/bazel-bin/syntaxnet/parser_eval.runfiles/__main_
 
 WORKDIR /root/models/syntaxnet/
 
-CMD /root/models/syntaxnet/syntaxnet/demo_rus.sh
+CMD ./syntaxnet/models/parsey_universal/parse.sh ./syntaxnet/models/Model1
 
