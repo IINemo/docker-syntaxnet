@@ -1,6 +1,12 @@
 FROM ubuntu:15.10
 
 
+# Common locale: en_EN.UTF-8
+ENV LANG_LOCALE="<%PLACEHOLDER_LANG_LOCALE%>"
+
+# Common url: http://download.tensorflow.org/models/parsey_universal/English.zip
+ENV MODEL_URL="<%PLACEHOLDER_MODEL_URL%>"
+
 RUN apt-get update && apt-get install -y \
         build-essential \
         curl \
@@ -66,22 +72,24 @@ RUN cd /root/models/syntaxnet && bazel build syntaxnet/...
 
 ######################################
 
-# Setting up locales for Russian
+# Setting up locales for the target language
 
 RUN \
-echo u_RU.UTF-8 UTF-8 > /etc/locale.gen && \
-locale-gen "ru_RU.UTF-8" && \
-echo 'LANG="ru_RU.UTF-8"'>/etc/default/locale && \
+echo "$LANG_LOCALE" > /etc/locale.gen && \
+locale-gen "$LANG_LOCALE" && \
+echo 'LANG="$LANG_LOCALE"'>/etc/default/locale && \
 dpkg-reconfigure --frontend=noninteractive locales && \
-update-locale LC_ALL=ru_RU.UTF-8 LANG=ru_RU.UTF-8  
+update-locale LC_ALL="$LANG_LOCALE" LANG="$LANG_LOCALE"  
 
-ENV LANG ru_RU.UTF-8
+ENV LANG "$LANG_LOCALE"
 
 
 # Downloading and unpacking model for Russian
 
-ADD http://download.tensorflow.org/models/parsey_universal/Russian-SynTagRus.zip /root/models/syntaxnet/syntaxnet/models
-RUN unzip /root/models/syntaxnet/syntaxnet/models/Russian-SynTagRus.zip -d /root/models/syntaxnet/syntaxnet/models/
+RUN export MODEL_NAME=$(basename $MODEL_URL)
+
+ADD "$MODEL_URL" /root/models/syntaxnet/syntaxnet/models
+RUN unzip "/root/models/syntaxnet/syntaxnet/models/$MODEL_NAME" -d /root/models/syntaxnet/syntaxnet/models/
 
 
 # Misk
