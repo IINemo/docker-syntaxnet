@@ -1,6 +1,4 @@
-[submodule "api"]
-	path = api
-	url = https://github.com/IINemo/syntaxnet_api_server.git
 [submodule "syntaxnet_api_server"]
 	path = syntaxnet_api_server
 	url = https://github.com/IINemo/syntaxnet_api_server.git
+        branch = all_langs
