@@ -1,0 +1,5 @@
+#!/bin/bash
+
+HOST="$1"
+PORT="$2"
+python /root/models/syntaxnet/bazel-bin/syntaxnet/parser_eval.runfiles/__main__/syntaxnet/api/syntaxnet_api.py --host="$HOST" --port="$PORT"
